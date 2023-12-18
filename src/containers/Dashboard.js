@@ -79,7 +79,13 @@ export default class {
 		const imgWidth = Math.floor($('#modaleFileAdmin1').width() * 0.8);
 		$('#modaleFileAdmin1')
 			.find('.modal-body')
-			.html(`<div style='text-align: center;'><img width=${imgWidth} src=${billUrl} alt="Bill"/></div>`);
+			.html(
+				`<div style='text-align: center;' class="bill-proof-container">${
+					billUrl.indexOf('null') !== -1
+						? `Aucun fichier disponible !`
+						: `<img width=${imgWidth} src=${billUrl} alt="Bill" />`
+				}</div>`
+			);
 		if (typeof $('#modaleFileAdmin1').modal === 'function') $('#modaleFileAdmin1').modal('show');
 	};
 

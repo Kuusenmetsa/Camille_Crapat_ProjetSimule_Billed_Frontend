@@ -27,7 +27,11 @@ export default class {
 		$('#modaleFile')
 			.find('.modal-body')
 			.html(
-				`<div style='text-align: center;' class="bill-proof-container"><img width=${imgWidth} src=${billUrl} alt="Bill" /></div>`
+				`<div style='text-align: center;' class="bill-proof-container">${
+					billUrl.indexOf('null') !== -1
+						? `Aucun fichier disponible !`
+						: `<img width=${imgWidth} src=${billUrl} alt="Bill" />`
+				}</div>`
 			);
 		$('#modaleFile').modal('show');
 	};
