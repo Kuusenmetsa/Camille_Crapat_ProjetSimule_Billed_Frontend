@@ -41,20 +41,56 @@ describe('Given I am connected as an employee', () => {
 			const datesSorted = [...dates].sort(antiChrono);
 			expect(dates).toEqual(datesSorted);
 		});
+		/* Voir pourquoi ça ne fonctionne pas
+		describe('When I click on the eye icon of an expense report', () => {
+			test('Then A modal with the image of the receipt appears', async () => {
+				document.body.innerHTML = BillsUI({ data: bills });
+
+				const eyeButton = screen.getByTestId('icon-eye');
+				const handleCLick = jest.fn((e) => e.preventDefault());
+				eyeButton.addEventListener('click', handleCLick);
+				fireEvent.click(eyeButton);
+
+				await waitFor(() => screen.getByTestId('bill-proof-container'));
+
+				expect(screen.getByTestId('bill-proof-container')).toBeTruthy();
+			});
+			describe('When no files are available', () => {
+				test('Then The message "Aucun fichier disponible" » appears', async () => {
+					document.body.innerHTML = BillsUI({ data: bills });
+
+					const eyeButton = screen.getByTestId('icon-eye');
+					const handleCLick = jest.fn((e) => e.preventDefault());
+					eyeButton.addEventListener('click', handleCLick);
+					fireEvent.click(eyeButton);
+
+					await waitFor(() => screen.queryByText('Aucun fichier disponible !'));
+
+					expect(screen.queryByText('Aucun fichier disponible !')).toBeTruthy();
+				});
+			});
+		}); */
+
+		/* Voir pourquoi ça ne fonctionne pas
+		describe('When I click to the button "Nouvelle note de frais"', () => {
+			test('Then the form for create a new bill is display', async () => {
+				document.body.innerHTML = BillsUI({ data: bills });
+
+				const buttonNewBill = screen.getByTestId('btn-new-bill');
+				const handleCLick = jest.fn((e) => e.preventDefault());
+				buttonNewBill.addEventListener('click', handleCLick);
+				fireEvent.click(buttonNewBill);
+
+				await waitFor(() => screen.getByTestId('form-new-bill'));
+
+				expect(screen.getByTestId('form-new-bill')).toBeTruthy();
+			});
+		}); */
+		/* Voir avec Aurélie
+		describe('Given a supporting form is open', () => {
+			describe('When I click to the cross', () => {
+				test('Then The Modal closes', () => {});
+			});
+		});*/
 	});
-	/* Voir pourquoi ça ne fonctionne pas
-	describe('When I click to the button "Nouvelle note de frais"', () => {
-		test('Then the form for create a new bill is display', async () => {
-			document.body.innerHTML = BillsUI({ data: bills });
-
-			const buttonNewBill = screen.getByTestId('btn-new-bill');
-			const handleCLick = jest.fn((e) => e.preventDefault());
-			buttonNewBill.addEventListener('click', handleCLick);
-			fireEvent.click(buttonNewBill);
-
-			await waitFor(() => screen.getByTestId('form-new-bill'));
-
-			expect(screen.getByTestId('form-new-bill')).toBeTruthy();
-		});
-	});*/
 });
