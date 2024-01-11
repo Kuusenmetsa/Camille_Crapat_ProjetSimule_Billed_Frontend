@@ -2,8 +2,9 @@
  * @jest-environment jsdom
  */
 
-import { screen, waitFor } from '@testing-library/dom';
+import { fireEvent, getByTestId, getByText, screen, waitFor, waitForElement } from '@testing-library/dom';
 import BillsUI from '../views/BillsUI.js';
+import NewBillUI from '../views/NewBillUI.js';
 import { bills } from '../fixtures/bills.js';
 import { ROUTES_PATH } from '../constants/routes.js';
 import { localStorageMock } from '../__mocks__/localStorage.js';
@@ -28,7 +29,9 @@ describe('Given I am connected as an employee', () => {
 			await waitFor(() => screen.getByTestId('icon-window'));
 			const windowIcon = screen.getByTestId('icon-window');
 			//to-do write expect expression
+			expect(windowIcon.classList.contains('active-icon')).toBe(true);
 		});
+
 		test('Then bills should be ordered from earliest to latest', () => {
 			document.body.innerHTML = BillsUI({ data: bills });
 			const dates = screen
@@ -39,4 +42,19 @@ describe('Given I am connected as an employee', () => {
 			expect(dates).toEqual(datesSorted);
 		});
 	});
+	/* Voir pourquoi ça ne fonctionne pas
+	describe('When I click to the button "Nouvelle note de frais"', () => {
+		test('Then the form for create a new bill is display', async () => {
+			document.body.innerHTML = BillsUI({ data: bills });
+
+			const buttonNewBill = screen.getByTestId('btn-new-bill');
+			const handleCLick = jest.fn((e) => e.preventDefault());
+			buttonNewBill.addEventListener('click', handleCLick);
+			fireEvent.click(buttonNewBill);
+
+			await waitFor(() => screen.getByTestId('form-new-bill'));
+
+			expect(screen.getByTestId('form-new-bill')).toBeTruthy();
+		});
+	});*/
 });
