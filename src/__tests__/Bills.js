@@ -6,10 +6,12 @@ import { fireEvent, getByTestId, getByText, screen, waitFor, waitForElement } fr
 import BillsUI from '../views/BillsUI.js';
 import NewBillUI from '../views/NewBillUI.js';
 import { bills } from '../fixtures/bills.js';
-import { ROUTES_PATH } from '../constants/routes.js';
+import { ROUTES_PATH, ROUTES } from '../constants/routes.js';
 import { localStorageMock } from '../__mocks__/localStorage.js';
 
 import router from '../app/Router.js';
+import Bills from '../containers/Bills.js';
+import userEvent from '@testing-library/user-event';
 
 describe('Given I am connected as an employee', () => {
 	describe('When I am on Bills Page', () => {
@@ -41,25 +43,50 @@ describe('Given I am connected as an employee', () => {
 			const datesSorted = [...dates].sort(antiChrono);
 			expect(dates).toEqual(datesSorted);
 		});
-		/* Voir pourquoi ça ne fonctionne pas
 		describe('When I click on the eye icon of an expense report', () => {
-			test('Then A modal with the image of the receipt appears', async () => {
+			test('Then A modal with the image of the receipt appears', () => {
+				Object.defineProperty(window, 'localStorage', { value: localStorageMock });
+				window.localStorage.setItem(
+					'user',
+					JSON.stringify({
+						type: 'Employee',
+					})
+				);
 				document.body.innerHTML = BillsUI({ data: bills });
 
-				const eyeButton = screen.getByTestId('icon-eye');
-				const handleCLick = jest.fn((e) => e.preventDefault());
-				eyeButton.addEventListener('click', handleCLick);
-				fireEvent.click(eyeButton);
+				const onNavigate = (pathname) => {
+					document.body.innerHTML = ROUTES({ pathname });
+				};
 
-				await waitFor(() => screen.getByTestId('bill-proof-container'));
+				const bill = new Bills({
+					document,
+					onNavigate,
+					store: null,
+					localStorage: localStorageMock,
+				});
 
-				expect(screen.getByTestId('bill-proof-container')).toBeTruthy();
+				$.fn.modal = jest.fn();
+
+				const eyeButtons = screen.getAllByTestId('icon-eye');
+
+				const clickGenerate = jest.fn((eyeButton) => {
+					bill.handleClickIconEye(eyeButton);
+				});
+
+				for (let i = 0; i < eyeButtons.length; i++) {
+					eyeButtons[i].addEventListener('click', clickGenerate(eyeButtons[i]));
+					fireEvent.click(eyeButtons[i]);
+				}
+
+				expect(clickGenerate).toHaveBeenCalled();
+				expect(screen.getByText('Justificatif')).toBeTruthy();
+				expect(screen.getByTestId('justif-bill')).toBeTruthy();
 			});
-			describe('When no files are available', () => {
+			/*	describe('When no files are available', () => {
 				test('Then The message "Aucun fichier disponible" » appears', async () => {
 					document.body.innerHTML = BillsUI({ data: bills });
 
-					const eyeButton = screen.getByTestId('icon-eye');
+					const eyeButton = screen.getAllByTestId('icon-eye')[0];
 					const handleCLick = jest.fn((e) => e.preventDefault());
 					eyeButton.addEventListener('click', handleCLick);
 					fireEvent.click(eyeButton);
@@ -68,29 +95,89 @@ describe('Given I am connected as an employee', () => {
 
 					expect(screen.queryByText('Aucun fichier disponible !')).toBeTruthy();
 				});
-			});
-		}); */
+			});*/
+		});
 
-		/* Voir pourquoi ça ne fonctionne pas
 		describe('When I click to the button "Nouvelle note de frais"', () => {
 			test('Then the form for create a new bill is display', async () => {
+				Object.defineProperty(window, 'localStorage', { value: localStorageMock });
+				window.localStorage.setItem(
+					'user',
+					JSON.stringify({
+						type: 'Employee',
+					})
+				);
 				document.body.innerHTML = BillsUI({ data: bills });
 
+				const onNavigate = (pathname) => {
+					document.body.innerHTML = ROUTES({ pathname });
+				};
+
+				const bill = new Bills({
+					document,
+					onNavigate,
+					store: null,
+					localStorage: localStorageMock,
+				});
+
+				$.fn.modal = jest.fn();
+
 				const buttonNewBill = screen.getByTestId('btn-new-bill');
-				const handleCLick = jest.fn((e) => e.preventDefault());
-				buttonNewBill.addEventListener('click', handleCLick);
+
+				const clickGenerate = jest.fn(() => {
+					bill.handleClickNewBill();
+				});
+				buttonNewBill.addEventListener('click', clickGenerate());
 				fireEvent.click(buttonNewBill);
 
-				await waitFor(() => screen.getByTestId('form-new-bill'));
-
-				expect(screen.getByTestId('form-new-bill')).toBeTruthy();
+				expect(clickGenerate).toHaveBeenCalled();
+				expect(screen.getByText('Envoyer une note de frais')).toBeTruthy();
 			});
-		}); */
-		/* Voir avec Aurélie
-		describe('Given a supporting form is open', () => {
+		});
+		describe('Given a modal proof is open', () => {
 			describe('When I click to the cross', () => {
-				test('Then The Modal closes', () => {});
+				test('Then The Modal closes', () => {
+					Object.defineProperty(window, 'localStorage', { value: localStorageMock });
+					window.localStorage.setItem(
+						'user',
+						JSON.stringify({
+							type: 'Employee',
+						})
+					);
+					document.body.innerHTML = BillsUI({ data: bills });
+
+					const onNavigate = (pathname) => {
+						document.body.innerHTML = ROUTES({ pathname });
+					};
+
+					const bill = new Bills({
+						document,
+						onNavigate,
+						store: null,
+						localStorage: localStorageMock,
+					});
+
+					$.fn.modal = jest.fn();
+
+					const eyeButton = screen.getAllByTestId('icon-eye')[0];
+
+					const clickGenerate = jest.fn(() => {
+						bill.handleClickIconEye(eyeButton);
+					});
+
+					eyeButton.addEventListener('click', clickGenerate());
+					fireEvent.click(eyeButton);
+
+					expect(clickGenerate).toHaveBeenCalled();
+
+					const closeButton = screen.getByTestId('close');
+
+					closeButton.addEventListener('click', jest.fn());
+					fireEvent.click(closeButton);
+
+					expect(screen.getByTestId('modal').classList.contains('show')).toBe(false);
+				});
 			});
-		});*/
+		});
 	});
 });
