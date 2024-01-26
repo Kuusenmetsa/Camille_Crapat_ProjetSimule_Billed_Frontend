@@ -2,7 +2,7 @@
  * @jest-environment jsdom
  */
 
-import { screen, fireEvent } from '@testing-library/dom';
+import { screen, fireEvent, waitFor } from '@testing-library/dom';
 import userEvent from '@testing-library/user-event';
 import NewBillUI from '../views/NewBillUI.js';
 import NewBill from '../containers/NewBill.js';
@@ -73,7 +73,7 @@ describe('Given I am connected as an employee', () => {
 			});
 		});
 		describe('I have completed the form correctly and click on the "Sent" button', () => {
-			test('I am redirected to the Dashboard', () => {
+			test('I am redirected to the Dashboard', async () => {
 				const nameForm = screen.getByTestId('expense-name');
 				fireEvent.change(nameForm, { target: { value: 'Vol paris' } });
 				expect(nameForm.value).toBe('Vol paris');
@@ -105,19 +105,19 @@ describe('Given I am connected as an employee', () => {
 				expect(commentaryForm.validationMessage).not.toBe('Constraints not satisfied');
 
 				const fileForm = screen.getByTestId('file');
-				const file = new File(['test'], 'test.png', { type: 'image/png' });
+				const file = new File(['hello'], 'hello.png', { type: 'image/png' });
 				const fileChange = jest.fn((e) => {
 					newBill.handleChangeFile(e);
 				});
 
-				fireEvent.change(fileForm, {
-					target: { files: { item: () => file, length: 1, 0: file } },
-				});
-
 				fileForm.addEventListener('change', (e) => fileChange(e));
 
-				expect(fileForm.files[0].type).not.toBeUndefined();
-				expect(fileForm.validationMessage).not.toBe('Constraints not satisfied');
+				userEvent.upload(fileForm, file);
+
+				expect(fileForm.files).toHaveLength(1);
+				expect(fileForm.files[0]).toStrictEqual(file);
+				expect(fileForm.files[0].name).toBe('hello.png');
+				expect(fileForm.files[0].type).toBe('image/png');
 
 				const formNewBill = screen.getByTestId('form-new-bill');
 				const handleClick = jest.fn((e) => {

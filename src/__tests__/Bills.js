@@ -2,16 +2,15 @@
  * @jest-environment jsdom
  */
 
-import { fireEvent, getByTestId, getByText, screen, waitFor, waitForElement } from '@testing-library/dom';
+import { fireEvent, screen, waitFor } from '@testing-library/dom';
 import BillsUI from '../views/BillsUI.js';
-import NewBillUI from '../views/NewBillUI.js';
 import { bills } from '../fixtures/bills.js';
 import { ROUTES_PATH, ROUTES } from '../constants/routes.js';
 import { localStorageMock } from '../__mocks__/localStorage.js';
+import mockStore from '../__mocks__/store';
 
 import router from '../app/Router.js';
 import Bills from '../containers/Bills.js';
-import userEvent from '@testing-library/user-event';
 
 describe('Given I am connected as an employee', () => {
 	describe('When I am on Bills Page', () => {
@@ -82,20 +81,6 @@ describe('Given I am connected as an employee', () => {
 				expect(screen.getByText('Justificatif')).toBeTruthy();
 				expect(screen.getByTestId('justif-bill')).toBeTruthy();
 			});
-			/*	describe('When no files are available', () => {
-				test('Then The message "Aucun fichier disponible" » appears', async () => {
-					document.body.innerHTML = BillsUI({ data: bills });
-
-					const eyeButton = screen.getAllByTestId('icon-eye')[0];
-					const handleCLick = jest.fn((e) => e.preventDefault());
-					eyeButton.addEventListener('click', handleCLick);
-					fireEvent.click(eyeButton);
-
-					await waitFor(() => screen.queryByText('Aucun fichier disponible !'));
-
-					expect(screen.queryByText('Aucun fichier disponible !')).toBeTruthy();
-				});
-			});*/
 		});
 
 		describe('When I click to the button "Nouvelle note de frais"', () => {
@@ -177,6 +162,36 @@ describe('Given I am connected as an employee', () => {
 
 					expect(screen.getByTestId('modal').classList.contains('show')).toBe(false);
 				});
+			});
+		});
+		describe('When the API returns a 404 error', () => {
+			test('Then a 404 message is displayed', async () => {
+				mockStore.bills.mockImplementationOnce(() => {
+					return {
+						list: () => {
+							return Promise.reject(new Error('Erreur 404'));
+						},
+					};
+				});
+				window.onNavigate(ROUTES_PATH.Bills);
+				await new Promise(process.nextTick);
+				const message = screen.getByText(/Erreur 404/);
+				expect(message).toBeTruthy();
+			});
+		});
+		describe('When the API returns a 500 error', () => {
+			test('Then a 500 message is displayed', async () => {
+				mockStore.bills.mockImplementationOnce(() => {
+					return {
+						list: () => {
+							return Promise.reject(new Error('Erreur 500'));
+						},
+					};
+				});
+				window.onNavigate(ROUTES_PATH.Bills);
+				await new Promise(process.nextTick);
+				const message = screen.getByText(/Erreur 500/);
+				expect(message).toBeTruthy();
 			});
 		});
 	});
