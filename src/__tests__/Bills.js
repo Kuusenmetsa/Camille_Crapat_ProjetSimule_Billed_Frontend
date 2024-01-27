@@ -3,6 +3,7 @@
  */
 
 import { fireEvent, screen, waitFor } from '@testing-library/dom';
+import '@testing-library/jest-dom';
 import BillsUI from '../views/BillsUI.js';
 import { bills } from '../fixtures/bills.js';
 import { ROUTES_PATH, ROUTES } from '../constants/routes.js';
@@ -11,6 +12,8 @@ import mockStore from '../__mocks__/store';
 
 import router from '../app/Router.js';
 import Bills from '../containers/Bills.js';
+
+jest.mock('../app/store', () => mockStore);
 
 describe('Given I am connected as an employee', () => {
 	describe('When I am on Bills Page', () => {
@@ -164,34 +167,52 @@ describe('Given I am connected as an employee', () => {
 				});
 			});
 		});
-		describe('When the API returns a 404 error', () => {
-			test('Then a 404 message is displayed', async () => {
-				mockStore.bills.mockImplementationOnce(() => {
-					return {
-						list: () => {
-							return Promise.reject(new Error('Erreur 404'));
-						},
-					};
+		describe('When the API returns an error', () => {
+			beforeEach(() => {
+				jest.spyOn(mockStore, 'bills');
+				Object.defineProperty(window, 'localStorage', {
+					value: localStorageMock,
 				});
-				window.onNavigate(ROUTES_PATH.Bills);
-				await new Promise(process.nextTick);
-				const message = screen.getByText(/Erreur 404/);
-				expect(message).toBeTruthy();
+				window.localStorage.setItem(
+					'user',
+					JSON.stringify({
+						type: 'Employee',
+					})
+				);
+				const root = document.createElement('div');
+				root.setAttribute('id', 'root');
+				document.body.appendChild(root);
+				router();
 			});
-		});
-		describe('When the API returns a 500 error', () => {
-			test('Then a 500 message is displayed', async () => {
-				mockStore.bills.mockImplementationOnce(() => {
-					return {
-						list: () => {
-							return Promise.reject(new Error('Erreur 500'));
-						},
-					};
+			describe('404', () => {
+				test('Then a 404 message is displayed', async () => {
+					mockStore.bills.mockImplementationOnce(() => {
+						return {
+							list: () => {
+								return Promise.reject(new Error('Erreur 404'));
+							},
+						};
+					});
+					window.onNavigate(ROUTES_PATH.Bills);
+					await new Promise(process.nextTick);
+					const message = screen.getByText(/Erreur 404/);
+					expect(message).toBeTruthy();
 				});
-				window.onNavigate(ROUTES_PATH.Bills);
-				await new Promise(process.nextTick);
-				const message = screen.getByText(/Erreur 500/);
-				expect(message).toBeTruthy();
+			});
+			describe('500', () => {
+				test('Then a 500 message is displayed', async () => {
+					mockStore.bills.mockImplementationOnce(() => {
+						return {
+							list: () => {
+								return Promise.reject(new Error('Erreur 500'));
+							},
+						};
+					});
+					window.onNavigate(ROUTES_PATH.Bills);
+					await new Promise(process.nextTick);
+					const message = screen.getByText(/Erreur 500/);
+					expect(message).toBeTruthy();
+				});
 			});
 		});
 	});
