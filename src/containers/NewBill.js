@@ -17,11 +17,8 @@ export default class NewBill {
 	}
 	handleChangeFile = (e) => {
 		e.preventDefault();
-		const file = this.document.querySelector(`input[data-testid="file"]`).files[0];
-		console.log(e.target);
-		const filePath = e.target.value.split(/\\/g);
-		console.log(e.target.value);
-		const fileName = filePath[filePath.length - 1];
+		const file = e.target.files[0];
+		const fileName = e.target.files[0].name;
 		const ext = fileName.split('.', fileName.lastIndexOf('.'));
 		const extName = ext[ext.length - 1];
 		if (extName === 'png' || extName === 'jpeg' || extName === 'jpg') {
